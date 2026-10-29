@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist de Oficina Mecânica Pro</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .print-border { border: 1px solid #cbd5e1 !important; }
+            body { background-color: white !important; font-size: 12px; }
+            .shadow-lg, .shadow-md, .shadow-sm { box-shadow: none !important; }
+        }
+        canvas { touch-action: none; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
+
+    <!-- Topbar / Cabeçalho -->
+    <header class="bg-blue-700 text-white shadow-md no-print sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-wrench text-2xl text-yellow-400"></i>
+                <h1 class="text-xl font-bold tracking-wide">AutoCheck <span class="text-xs bg-blue-800 px-2 py-0.5 rounded font-normal">Oficina Pro</span></h1>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="abrirHistorico()" class="bg-blue-600 hover:bg-blue-800 px-3 py-1.5 rounded text-sm font-medium transition flex items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Histórico
+                </button>
+                <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded text-sm font-medium transition flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> Imprimir / PDF
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
+
+        <!-- Formulário Principal -->
+        <form id="checklistForm" class="bg-white p-6 rounded-xl shadow-md space-y-8 print-border">
+            
+            <!-- Cabeçalho do Laudo / Impressão -->
+            <div class="border-b pb-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800">CHECKLIST DE ENTRADA DO VEÍCULO</h2>
+                    <p class="text-sm text-slate-500">Vistoria e Recepção Veicular</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-slate-700">Data/Hora: <span id="dataHoraDisplay" class="font-normal"></span></p>
+                    <p class="text-sm font-semibold text-slate-700">Nº Protocolo: <span id="numProtocolo" class="font-mono text-blue-700"></span></p>
+                </div>
+            </div>
+
+            <!-- Dados do Cliente & Veículo -->
+            <div>
+                <h3 class="text-md font-bold uppercase tracking-wider text-blue-700 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-car"></i> Dados do Cliente e Veículo
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nome do Cliente *</label>
+                        <input required type="text" id="clienteNome" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Telefone / WhatsApp *</label>
+                        <input required type="tel" id="clienteTel" placeholder="(00) 00000-0000" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Placa *</label>
+                        <input required type="text" id="veiculoPlaca" placeholder="ABC-1234" class="w-full border rounded-lg p-2 text-sm uppercase font-mono font-bold focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Modelo / Marca *</label>
+                        <input required type="text" id="veiculoModelo" placeholder="Ex: Onix 1.0" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Ano Fab/Mod</label>
+                        <input type="text" id="veiculoAno" placeholder="Ex: 2020/2021" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Cor</label>
+                        <input type="text" id="veiculoCor" placeholder="Ex: Prata" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">KM Atual *</label>
+                        <input required type="number" id="veiculoKm" placeholder="Ex: 75000" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nível de Combustível</label>
+                        <select id="veiculoCombustivel" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="Reserva">Reserva (E)</option>
+                            <option value="1/4">1/4 Tanque</option>
+                            <option value="1/2" selected>1/2 Tanque</option>
+                            <option value="3/4">3/4 Tanque</option>
+                            <option value="Cheio">Cheio (F)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categorias do Checklist -->
+            <div id="checklistContainer" class="space-y-6">
+                <!-- Inserido dinamicamente via Javascript -->
+            </div>
+
+            <!-- Avarias Pré-existentes & Observações -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="text-md font-bold uppercase tracking-wider text-blue-700 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Avarias Externas Existentes
+                    </h3>
+                    <textarea id="obsAvarias" rows="4" placeholder="Descreva arranhões, mossas, amassados ou peças quebradas observadas no recebimento..." class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                </div>
+                <div>
+                    <h3 class="text-md font-bold uppercase tracking-wider text-blue-700 mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list"></i> Solicitação do Cliente / Queixas
+                    </h3>
+                    <textarea id="obsServicos" rows="4" placeholder="Barulho na suspensão, revisão periódica, luz da injeção acesa..." class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                </div>
+            </div>
+
+            <!-- Assinaturas Digitais -->
+            <div>
+                <h3 class="text-md font-bold uppercase tracking-wider text-blue-700 mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-signature"></i> Validação e Assinatura
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                    <!-- Assinatura Cliente -->
+                    <div class="border rounded-lg p-3 bg-slate-50">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-semibold text-slate-700">Assinatura do Cliente</span>
+                            <button type="button" onclick="limparCanvas('sigCliente')" class="text-xs text-red-500 hover:underline no-print">Limpar</button>
+                        </div>
+                        <canvas id="sigCliente" width="400" height="120" class="w-full bg-white border border-dashed rounded"></canvas>
+                    </div>
+                    <!-- Assinatura Vistoriador -->
+                    <div class="border rounded-lg p-3 bg-slate-50">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-xs font-semibold text-slate-700">Assinatura do Vistoriador / Mecânico</span>
+                            <button type="button" onclick="limparCanvas('sigMecanico')" class="text-xs text-red-500 hover:underline no-print">Limpar</button>
+                        </div>
+                        <canvas id="sigMecanico" width="400" height="120" class="w-full bg-white border border-dashed rounded"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra de Ações Inferior -->
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t no-print">
+                <button type="button" onclick="resetForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2.5 rounded-lg text-sm font-semibold transition">
+                    Limpar Formulário
+                </button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold shadow transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Salvar Checklist
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <!-- Modal de Histórico -->
+    <div id="modalHistorico" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center bg-slate-50 rounded-t-xl">
+                <h3 class="font-bold text-lg text-slate-800">Checklists Salvos</h3>
+                <button onclick="fecharHistorico()" class="text-slate-500 hover:text-slate-800 text-xl font-bold">&times;</button>
+            </div>
+            <div id="listaHistorico" class="p-4 overflow-y-auto space-y-3 flex-1">
+                <!-- Renderizado dinamicamente -->
+            </div>
+            <div class="p-3 border-t bg-slate-50 rounded-b-xl text-right">
+                <button onclick="fecharHistorico()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-1.5 rounded text-sm">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script da Aplicação -->
+    <script>
+        // Estrutura completa de itens do Checklist de Oficina
+        const ITENS_CHECKLIST = [
+            {
+                categoria: "1. Iluminação & Sinalização",
+                icone: "fa-lightbulb",
+                itens: ["Faróis Principais (Baixo/Alto)", "Lanternas & Luz de Freio", "Luzes de Seta / Pisca", "Luz de Ré", "Luz de Placa", "Faróis de Neblina"]
+            },
+            {
+                categoria: "2. Pneus, Rodas & Chassi",
+                icone: "fa-compact-disc",
+                itens: ["Pneus Dianteiros", "Pneus Traseiros", "Estepe (Calibragem/Estado)", "Alinhamento Visual", "Calotas / Rodas de Liga"]
+            },
+            {
+                categoria: "3. Cabine & Conforto",
+                icone: "fa-gauge-high",
+                itens: ["Ar-Condicionado / Climatizador", "Limpador e Esguicho Para-brisa", "Vidros Elétricos / Travas", "Buzina", "Luzes de Alerta do Painel (Injeção/ABS)", "Bancos e Estofamento"]
+            },
+            {
+                categoria: "4. Sob o Capô & Mecânica Básica",
+                icone: "fa-oil-can",
+                itens: ["Nível do Óleo do Motor", "Fluido de Freio", "Líquido de Arrefecimento", "Bateria (Carga / Polos)", "Vazamentos Visíveis", "Correia Dentada / Acessórios"]
+            },
+            {
+                categoria: "5. Itens Obrigatórios & Segurança",
+                icone: "fa-shield-halved",
+                itens: ["Macaco", "Chave de Roda", "Triângulo de Sinalização", "Manual & Chave Reserva", "Documento do Veículo"]
+            }
+        ];
+
+        // Inicializar aplicação
+        document.addEventListener("DOMContentLoaded", () => {
+            renderizarChecklist();
+            inicializarDataEProtocolo();
+            inicializarCanvas("sigCliente");
+            inicializarCanvas("sigMecanico");
+        });
+
+        function inicializarDataEProtocolo() {
+            const agora = new Date();
+            document.getElementById("dataHoraDisplay").innerText = agora.toLocaleString("pt-BR");
+            document.getElementById("numProtocolo").innerText = "#" + Math.floor(100000 + Math.random() * 900000);
+        }
+
+        // Renderiza as categorias e opções
+        function renderizarChecklist() {
+            const container = document.getElementById("checklistContainer");
+            container.innerHTML = "";
+
+            ITENS_CHECKLIST.forEach((cat, catIdx) => {
+                const section = document.createElement("div");
+                section.className = "border rounded-xl p-4 bg-slate-50";
+
+                let headerHtml = `
+                    <h3 class="text-md font-bold uppercase tracking-wider text-slate-700 mb-3 flex items-center gap-2">
+                        <i class="fa-solid ${cat.icone} text-blue-600"></i> ${cat.categoria}
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                `;
+
+                cat.itens.forEach((item, itemIdx) => {
+                    const itemId = `chk_${catIdx}_${itemIdx}`;
+                    headerHtml += `
+                        <div class="bg-white p-2.5 rounded-lg border flex flex-col justify-between gap-2 shadow-sm">
+                            <span class="text-xs font-semibold text-slate-800">${item}</span>
+                            <div class="flex gap-1.5 text-xs">
+                                <label class="flex-1 text-center py-1 rounded cursor-pointer border hover:bg-emerald-50 has-[:checked]:bg-emerald-500 has-[:checked]:text-white has-[:checked]:font-bold transition">
+                                    <input type="radio" name="${itemId}" value="OK" checked class="hidden"> OK
+                                </label>
+                                <label class="flex-1 text-center py-1 rounded cursor-pointer border hover:bg-amber-50 has-[:checked]:bg-amber-500 has-[:checked]:text-white has-[:checked]:font-bold transition">
+                                    <input type="radio" name="${itemId}" value="Atenção" class="hidden"> Atenção
+                                </label>
+                                <label class="flex-1 text-center py-1 rounded cursor-pointer border hover:bg-red-50 has-[:checked]:bg-red-500 has-[:checked]:text-white has-[:checked]:font-bold transition">
+                                    <input type="radio" name="${itemId}" value="Crítico" class="hidden"> Crítico
+                                </label>
+                                <label class="flex-1 text-center py-1 rounded cursor-pointer border hover:bg-slate-100 has-[:checked]:bg-slate-400 has-[:checked]:text-white has-[:checked]:font-bold transition">
+                                    <input type="radio" name="${itemId}" value="N/A" class="hidden"> N/A
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                headerHtml += `</div>`;
+                section.innerHTML = headerHtml;
+                container.appendChild(section);
+            });
+        }
+
+        // Lógica dos Canvas de Assinatura (Mouse + Touch)
+        function inicializarCanvas(id) {
+            const canvas = document.getElementById(id);
+            const ctx = canvas.getContext("2d");
+            let desenhando = false;
+
+            ctx.lineWidth = 2;
+            ctx.lineCap = "round";
+            ctx.strokeStyle = "#1e293b";
+
+            function getPos(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: (clientX - rect.left) * (canvas.width / rect.width),
+                    y: (clientY - rect.top) * (canvas.height / rect.height)
+                };
+            }
+
+            function iniciar(e) {
+                desenhando = true;
+                const pos = getPos(e);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                e.preventDefault();
+            }
+
+            function desenhar(e) {
+                if (!desenhando) return;
+                const pos = getPos(e);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                e.preventDefault();
+            }
+
+            function parar() { desenhando = false; }
+
+            canvas.addEventListener("mousedown", iniciar);
+            canvas.addEventListener("mousemove", desenhar);
+            window.addEventListener("mouseup", parar);
+
+            canvas.addEventListener("touchstart", iniciar, { passive: false });
+            canvas.addEventListener("touchmove", desenhar, { passive: false });
+            window.addEventListener("touchend", parar);
+        }
+
+        function limparCanvas(id) {
+            const canvas = document.getElementById(id);
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Salvar e Carregar no LocalStorage
+        document.getElementById("checklistForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const checklistData = {
+                id: document.getElementById("numProtocolo").innerText,
+                data: document.getElementById("dataHoraDisplay").innerText,
+                cliente: document.getElementById("clienteNome").value,
+                telefone: document.getElementById("clienteTel").value,
+                placa: document.getElementById("veiculoPlaca").value,
+                modelo: document.getElementById("veiculoModelo").value,
+                ano: document.getElementById("veiculoAno").value,
+                cor: document.getElementById("veiculoCor").value,
+                km: document.getElementById("veiculoKm").value,
+                combustivel: document.getElementById("veiculoCombustivel").value,
+                avarias: document.getElementById("obsAvarias").value,
+                servicos: document.getElementById("obsServicos").value,
+                sigCliente: document.getElementById("sigCliente").toDataURL(),
+                sigMecanico: document.getElementById("sigMecanico").toDataURL(),
+                respostas: {}
+            };
+
+            // Capturar itens checados
+            ITENS_CHECKLIST.forEach((cat, catIdx) => {
+                cat.itens.forEach((item, itemIdx) => {
+                    const radios = document.getElementsByName(`chk_${catIdx}_${itemIdx}`);
+                    for (const r of radios) {
+                        if (r.checked) checklistData.respostas[item] = r.value;
+                    }
+                });
+            });
+
+            const historico = JSON.parse(localStorage.getItem("checklistsOficina") || "[]");
+            historico.unshift(checklistData);
+            localStorage.setItem("checklistsOficina", JSON.stringify(historico));
+
+            alert("Checklist salvo com sucesso!");
+        });
+
+        // Gestão do Histórico
+        function abrirHistorico() {
+            const modal = document.getElementById("modalHistorico");
+            const lista = document.getElementById("listaHistorico");
+            const historico = JSON.parse(localStorage.getItem("checklistsOficina") || "[]");
+
+            lista.innerHTML = "";
+            if (historico.length === 0) {
+                lista.innerHTML = `<p class="text-sm text-slate-500 text-center py-6">Nenhum checklist salvo ainda.</p>`;
+            } else {
+                historico.forEach((item, index) => {
+                    lista.innerHTML += `
+                        <div class="border rounded-lg p-3 flex justify-between items-center hover:bg-slate-50 transition">
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">${item.placa} - ${item.modelo}</p>
+                                <p class="text-xs text-slate-500">Cliente: ${item.cliente} | ${item.data}</p>
+                                <span class="text-xs font-mono bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">${item.id}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="removerHistorico(${index})" class="text-red-500 hover:text-red-700 p-2 text-sm"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function fecharHistorico() {
+            const modal = document.getElementById("modalHistorico");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function removerHistorico(idx) {
+            if (confirm("Deseja realmente apagar este registro?")) {
+                const historico = JSON.parse(localStorage.getItem("checklistsOficina") || "[]");
+                historico.splice(idx, 1);
+                localStorage.setItem("checklistsOficina", JSON.stringify(historico));
+                abrirHistorico();
+            }
+        }
+
+        function resetForm() {
+            if (confirm("Deseja limpar todos os campos e iniciar um novo checklist?")) {
+                document.getElementById("checklistForm").reset();
+                limparCanvas("sigCliente");
+                limparCanvas("sigMecanico");
+                inicializarDataEProtocolo();
+            }
+        }
+    </script>
+</body>
+</html>
